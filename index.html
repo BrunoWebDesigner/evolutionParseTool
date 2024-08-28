@@ -3,18 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Evolution Game List Table Viewer</title>
+    <title>Evo Games</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
-    <h1>JSON Table Viewer</h1>
+    <h1>Evolution Game List Table Viewer</h1>
 
     <div class="input-container">
         <label for="jsonFileInput" class="custom-file-upload">Choose JSON File</label>
         <input type="file" id="jsonFileInput">
         <button id="generateTable">Generate Table</button>
-        <button id="exportExcel" disabled>Export to Excel</button>
+        <button id="copyTable" disabled>Copy Table</button>
     </div>
 
     <div id="tableContainer" class="table-container"></div>

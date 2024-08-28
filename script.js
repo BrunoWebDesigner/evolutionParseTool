@@ -10,7 +10,7 @@ document.getElementById('generateTable').addEventListener('click', () => {
             try {
                 currentData = JSON.parse(event.target.result);
                 generateTable(currentData);
-                document.getElementById('exportExcel').disabled = false;
+                document.getElementById('copyTable').disabled = false;
             } catch (e) {
                 alert('Invalid JSON file');
             }
@@ -21,11 +21,11 @@ document.getElementById('generateTable').addEventListener('click', () => {
     }
 });
 
-document.getElementById('exportExcel').addEventListener('click', () => {
+document.getElementById('copyTable').addEventListener('click', () => {
     if (currentData) {
-        exportToExcel(currentData);
+        copyTableToClipboard();
     } else {
-        alert('No data to export');
+        alert('No data to copy');
     }
 });
 
@@ -84,20 +84,24 @@ function generateTable(data) {
     tableContainer.appendChild(table);
 }
 
-function exportToExcel(data) {
-    // Convert JSON data to sheet format
-    const ws = XLSX.utils.json_to_sheet(Object.values(data.tables).map(game => {
-        const obj = { ...game };
-        if (obj.virtualTableId) {
-            obj.virtualTableId = obj.virtualTableId;
+function copyTableToClipboard() {
+    const tableContainer = document.getElementById('tableContainer');
+    const table = tableContainer.querySelector('table');
+
+    if (table) {
+        const range = document.createRange();
+        range.selectNode(table);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+
+        try {
+            document.execCommand('copy');
+            alert('Table copied to clipboard!');
+        } catch (err) {
+            alert('Failed to copy table');
         }
-        return obj;
-    }));
 
-    // Create a new workbook and add the worksheet
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Games');
-
-    // Export the workbook
-    XLSX.writeFile(wb, 'games.xlsx');
+        selection.removeAllRanges();
+    }
 }
