@@ -96,6 +96,11 @@ tr:hover {
     background-color: #f1f1f1;
 }
 
+#jsonInput {
+    display: block;
+    margin-left: 10px;
+}
+
 @media (max-width: 768px) {
     th, td {
         font-size: 14px;

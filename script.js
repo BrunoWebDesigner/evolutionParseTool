@@ -2,9 +2,18 @@ let currentData = null;
 
 document.getElementById('generateTable').addEventListener('click', () => {
     const fileInput = document.getElementById('jsonFileInput');
-    const file = fileInput.files[0];
+    const jsonInput = document.getElementById('jsonInput').value;
 
-    if (file) {
+    if (jsonInput) {
+        try {
+            currentData = JSON.parse(jsonInput);
+            generateTable(currentData);
+            document.getElementById('copyTable').disabled = false;
+        } catch (e) {
+            alert('Invalid JSON input');
+        }
+    } else if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
         const reader = new FileReader();
         reader.onload = function(event) {
             try {
@@ -17,7 +26,7 @@ document.getElementById('generateTable').addEventListener('click', () => {
         };
         reader.readAsText(file);
     } else {
-        alert('Please select a JSON file');
+        alert('Please select a JSON file or paste JSON data');
     }
 });
 
