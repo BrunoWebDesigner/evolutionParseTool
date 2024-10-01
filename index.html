@@ -3,18 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Evo Games</title>
+    <title>Amazing Game List</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Amaaaazing Evolution Game List Table Viewer</h1>
+    <h1>Amaaaazing Game List Table Viewer</h1>
 
     <div class="input-container">
         <label for="jsonFileInput" class="custom-file-upload">Choose JSON File</label>
         <input type="file" id="jsonFileInput">
-        <textarea id="jsonInput" placeholder="Paste JSON data here..."></textarea>
+        <div class="textarea-container">
+            <textarea id="jsonInput" placeholder="Paste JSON data here..."></textarea>
+            <button id="clearJsonInput" class="clear-button">X</button>
+        </div>
         <button id="generateTable">Generate Table</button>
-        <button id="copyTable" disabled>Copy Table</button>
+        <div class="copy-container">
+            <button id="copyTable" disabled>Copy Table</button>
+            <span id="casinoIdDisplay"></span>
+        </div>
     </div>
 
     <div id="tableContainer" class="table-container"></div>

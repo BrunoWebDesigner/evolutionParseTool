@@ -1,5 +1,11 @@
 let currentData = null;
 
+// Clear the content of the textarea when the 'X' button is clicked
+document.getElementById('clearJsonInput').addEventListener('click', () => {
+    document.getElementById('jsonInput').value = '';
+});
+
+// Handle the 'Generate Table' button click event
 document.getElementById('generateTable').addEventListener('click', () => {
     const fileInput = document.getElementById('jsonFileInput');
     const jsonInput = document.getElementById('jsonInput').value;
@@ -7,6 +13,7 @@ document.getElementById('generateTable').addEventListener('click', () => {
     if (jsonInput) {
         try {
             currentData = JSON.parse(jsonInput);
+            displayCasinoId(currentData);
             generateTable(currentData);
             document.getElementById('copyTable').disabled = false;
         } catch (e) {
@@ -18,6 +25,7 @@ document.getElementById('generateTable').addEventListener('click', () => {
         reader.onload = function(event) {
             try {
                 currentData = JSON.parse(event.target.result);
+                displayCasinoId(currentData);
                 generateTable(currentData);
                 document.getElementById('copyTable').disabled = false;
             } catch (e) {
@@ -30,6 +38,13 @@ document.getElementById('generateTable').addEventListener('click', () => {
     }
 });
 
+// Function to display the casinoId parameter
+function displayCasinoId(data) {
+    const casinoId = data.casinoId || 'No casinoId found';
+    document.getElementById('casinoIdDisplay').textContent = `Casino ID: ${casinoId}`;
+}
+
+// Handle the 'Copy Table' button click event
 document.getElementById('copyTable').addEventListener('click', () => {
     if (currentData) {
         copyTableToClipboard();
@@ -38,6 +53,7 @@ document.getElementById('copyTable').addEventListener('click', () => {
     }
 });
 
+// Function to generate the table from JSON data
 function generateTable(data) {
     const tableContainer = document.getElementById('tableContainer');
     tableContainer.innerHTML = ''; // Clear previous table
@@ -93,6 +109,7 @@ function generateTable(data) {
     tableContainer.appendChild(table);
 }
 
+// Function to copy the table to clipboard
 function copyTableToClipboard() {
     const tableContainer = document.getElementById('tableContainer');
     const table = tableContainer.querySelector('table');

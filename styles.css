@@ -101,6 +101,50 @@ tr:hover {
     margin-left: 10px;
 }
 
+.textarea-container {
+    position: relative;
+    display: inline-block;
+}
+
+#jsonInput {
+    width: 300px;
+    height: 100px;
+}
+
+.clear-button {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: red;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    line-height: 16px;
+    text-align: center;
+    transition: transform 0.2s ease;
+}
+
+.clear-button:hover {
+    background-color: rgb(255, 107, 107);
+    transform: scale(1.2);
+}
+
+.copy-container {
+    display: inline-flex;
+    align-items: center;
+}
+
+#casinoIdDisplay {
+    margin-left: 10px;
+    font-weight: bold;
+    color: #333;
+}
+
+
 @media (max-width: 768px) {
     th, td {
         font-size: 14px;
