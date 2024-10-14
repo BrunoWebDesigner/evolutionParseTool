@@ -15,6 +15,7 @@ document.getElementById('generateTable').addEventListener('click', () => {
             currentData = JSON.parse(jsonInput);
             displayCasinoId(currentData);
             generateTable(currentData);
+            populateCurrencyDropdown(currentData);
             document.getElementById('copyTable').disabled = false;
         } catch (e) {
             alert('Invalid JSON input');
@@ -27,6 +28,7 @@ document.getElementById('generateTable').addEventListener('click', () => {
                 currentData = JSON.parse(event.target.result);
                 displayCasinoId(currentData);
                 generateTable(currentData);
+                populateCurrencyDropdown(currentData);
                 document.getElementById('copyTable').disabled = false;
             } catch (e) {
                 alert('Invalid JSON file');
@@ -38,20 +40,58 @@ document.getElementById('generateTable').addEventListener('click', () => {
     }
 });
 
+// Function to populate the currency dropdown
+function populateCurrencyDropdown(data) {
+    const currencySelect = document.getElementById('currencySelect');
+    currencySelect.innerHTML = ''; // Clear any previous options
+
+    // Extract available currencies from betLimits
+    const sampleGame = Object.values(data.tables)[0];
+    const currencies = Object.keys(sampleGame.betLimits);
+
+    // Populate the select dropdown with the available currencies
+    currencies.forEach(currency => {
+        const option = document.createElement('option');
+        option.value = currency;
+        option.textContent = currency;
+        currencySelect.appendChild(option);
+    });
+}
+
+// Function to apply the selected currency to the table columns
+document.getElementById('applyCurrency').addEventListener('click', () => {
+    if (currentData) {
+        const selectedCurrency = document.getElementById('currencySelect').value;
+        updateTableWithCurrency(currentData, selectedCurrency);
+    } else {
+        alert('No data to apply');
+    }
+});
+
 // Function to display the casinoId parameter
 function displayCasinoId(data) {
     const casinoId = data.casinoId || 'No casinoId found';
     document.getElementById('casinoIdDisplay').textContent = `Casino ID: ${casinoId}`;
 }
 
-// Handle the 'Copy Table' button click event
-document.getElementById('copyTable').addEventListener('click', () => {
-    if (currentData) {
-        copyTableToClipboard();
-    } else {
-        alert('No data to copy');
+// Function to update the table based on selected currency
+function updateTableWithCurrency(data, currency) {
+    const tableContainer = document.getElementById('tableContainer');
+    const table = tableContainer.querySelector('table');
+
+    // Update the betLimits column for the selected currency
+    if (table) {
+        Object.values(data.tables).forEach((game, index) => {
+            const row = table.rows[index + 1]; // Skip header row
+            const betLimits = game.betLimits[currency];
+            if (betLimits) {
+                const betLimitCell = document.createElement('td');
+                betLimitCell.textContent = `${betLimits.symbol} min: ${betLimits.min}, max: ${betLimits.max}`;
+                row.appendChild(betLimitCell);
+            }
+        });
     }
-});
+}
 
 // Function to generate the table from JSON data
 function generateTable(data) {
@@ -109,25 +149,34 @@ function generateTable(data) {
     tableContainer.appendChild(table);
 }
 
-// Function to copy the table to clipboard
-function copyTableToClipboard() {
+// Function to copy the table content to the clipboard
+function copyTableContent() {
     const tableContainer = document.getElementById('tableContainer');
     const table = tableContainer.querySelector('table');
 
-    if (table) {
-        const range = document.createRange();
-        range.selectNode(table);
-        const selection = window.getSelection();
-        selection.removeAllRanges();
-        selection.addRange(range);
-
-        try {
-            document.execCommand('copy');
-            alert('Table copied to clipboard!');
-        } catch (err) {
-            alert('Failed to copy table');
-        }
-
-        selection.removeAllRanges();
+    if (!table) {
+        alert('No table to copy.');
+        return;
     }
+
+    // Create a temporary textarea to hold the table content
+    const textarea = document.createElement('textarea');
+    let tableContent = '';
+
+    // Extract text content from the table
+    Array.from(table.rows).forEach(row => {
+        const cells = Array.from(row.cells).map(cell => cell.textContent);
+        tableContent += cells.join('\t') + '\n'; // Use tabs for separation
+    });
+
+    textarea.value = tableContent.trim(); // Trim to remove last newline
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy'); // Copy to clipboard
+    document.body.removeChild(textarea);
+
+    alert('Table content copied to clipboard!');
 }
+
+// Add event listener for the copy button
+document.getElementById('copyTable').addEventListener('click', copyTableContent);

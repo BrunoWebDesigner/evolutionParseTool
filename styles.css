@@ -46,7 +46,7 @@ h1 {
     background-color: #0056b3;
 }
 
-#generateTable, #copyTable {
+#generateTable, #copyTable, #applyCurrency {
     font-family: Arial, sans-serif;
     font-size: 16px;
     background-color: #007bff;
@@ -59,7 +59,7 @@ h1 {
     transition: background-color 0.3s ease;
 }
 
-#generateTable:hover, #copyTable:hover {
+#generateTable:hover, #copyTable:hover, #applyCurrency:hover {
     background-color: #0056b3;
 }
 
@@ -109,6 +109,15 @@ tr:hover {
 #jsonInput {
     width: 300px;
     height: 100px;
+}
+
+#currencySelect {
+    width: 70px;
+    height: 30px;
+}
+
+label {
+    margin-left: 10px;
 }
 
 .clear-button {
