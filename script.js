@@ -102,13 +102,9 @@ function generateTable(data) {
     const thead = document.createElement('thead');
     const tbody = document.createElement('tbody');
 
-    // Fields to exclude from the table
     const excludeFields = ['betLimits', 'road', 'history', 'videoSnapshot'];
-
-    // Create an array for the headers (unique and in order)
     let headers = [];
 
-    // Determine the headers based on the first game's keys, excluding unwanted fields
     const sampleGame = Object.values(data.tables)[0];
     Object.keys(sampleGame).forEach(field => {
         if (!excludeFields.includes(field)) {
@@ -116,13 +112,16 @@ function generateTable(data) {
         }
     });
 
-    // Add 'virtualTableId' to headers if not already included
     if (!headers.includes('virtualTableId')) {
-        headers.unshift('virtualTableId'); // Ensure it appears first
+        headers.unshift('virtualTableId');
     }
 
-    // Create header row
+    // Add 'Row Number' as the first header
     const headerRow = document.createElement('tr');
+    const rowNumberHeader = document.createElement('th');
+    rowNumberHeader.textContent = 'Row Number';
+    headerRow.appendChild(rowNumberHeader);
+
     headers.forEach(header => {
         const th = document.createElement('th');
         th.textContent = header;
@@ -130,14 +129,18 @@ function generateTable(data) {
     });
     thead.appendChild(headerRow);
 
-    // Create data rows for all games
-    Object.values(data.tables).forEach(game => {
+    // Generate rows with row numbers
+    Object.values(data.tables).forEach((game, index) => {
         const dataRow = document.createElement('tr');
+
+        // Create a cell for the row number
+        const rowNumberCell = document.createElement('td');
+        rowNumberCell.textContent = index + 1;  // Row number starts from 1
+        dataRow.appendChild(rowNumberCell);
+
         headers.forEach(header => {
             const td = document.createElement('td');
             const value = game[header];
-
-            // If the value is undefined, set it to an empty string
             td.textContent = value !== undefined ? (typeof value === 'object' ? JSON.stringify(value) : value) : '';
             dataRow.appendChild(td);
         });
@@ -148,6 +151,7 @@ function generateTable(data) {
     table.appendChild(tbody);
     tableContainer.appendChild(table);
 }
+
 
 // Function to copy the table content to the clipboard
 function copyTableContent() {
