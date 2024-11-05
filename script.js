@@ -186,9 +186,16 @@ function generateTable(data) {
     });
     thead.appendChild(headerRow);
 
-    // Create data rows for all games
+    // Generate rows with row numbers
+    let rowIndex = 1;
     Object.values(data.tables).forEach(game => {
         const dataRow = document.createElement('tr');
+
+        // Create a cell for the row number
+        const rowNumberCell = document.createElement('td');
+        rowNumberCell.textContent = rowIndex++;
+        dataRow.appendChild(rowNumberCell);
+
         headers.forEach(header => {
             const td = document.createElement('td');
             const value = game[header];
@@ -202,6 +209,8 @@ function generateTable(data) {
     table.appendChild(tbody);
     tableContainer.appendChild(table);
 }
+
+
 
 // Function to copy the table content to the clipboard
 function copyTableContent() {
