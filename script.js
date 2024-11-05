@@ -93,16 +93,18 @@ document.getElementById('applySite').addEventListener('click', () => {
 
 // Function to filter the table by selected site
 function filterTableBySite(data, site) {
-    const filteredTables = Object.values(data.tables).filter(game => {
-        const sitesAssigned = game.sitesAssigned || [];
-        const sitesBlocked = game.sitesBlocked || [];
+    const siteAsString = site.toString();
 
-        const isAssigned = sitesAssigned.includes(site);
-        const isBlocked = sitesBlocked.includes(site);
-
-        // Show rows where site is assigned, or not assigned and not blocked
-        return isAssigned || (!isAssigned && !isBlocked);
-    });
+    // Filter games where `sitesBlocked` does NOT contain `siteAsString`
+    const filteredTables = Object.entries(data.tables)
+        .filter(([gameId, game]) => {
+            const sitesBlocked = game.sitesBlocked || [];
+            return !sitesBlocked.includes(siteAsString); // Convert site to string to match sitesBlocked elements
+        })
+        .reduce((acc, [gameId, game]) => {
+            acc[gameId] = game;
+            return acc;
+        }, {});
 
     // Regenerate the table with the filtered data
     generateTable({ tables: filteredTables });
@@ -155,6 +157,12 @@ function generateTable(data) {
     let headers = [];
 
     const sampleGame = Object.values(data.tables)[0];
+    if (!sampleGame) {
+        tableContainer.textContent = 'No data to display';
+        return; // Exit if there's no data to display
+    }
+
+    // Get headers excluding certain fields
     Object.keys(sampleGame).forEach(field => {
         if (!excludeFields.includes(field)) {
             headers.push(field);
@@ -179,12 +187,13 @@ function generateTable(data) {
     thead.appendChild(headerRow);
 
     // Generate rows with row numbers
-    Object.values(data.tables).forEach((game, index) => {
+    let rowIndex = 1;
+    Object.values(data.tables).forEach(game => {
         const dataRow = document.createElement('tr');
 
         // Create a cell for the row number
         const rowNumberCell = document.createElement('td');
-        rowNumberCell.textContent = index + 1;  // Row number starts from 1
+        rowNumberCell.textContent = rowIndex++;
         dataRow.appendChild(rowNumberCell);
 
         headers.forEach(header => {
@@ -200,6 +209,7 @@ function generateTable(data) {
     table.appendChild(tbody);
     tableContainer.appendChild(table);
 }
+
 
 
 // Function to copy the table content to the clipboard
