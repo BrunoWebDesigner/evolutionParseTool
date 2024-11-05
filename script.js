@@ -16,6 +16,7 @@ document.getElementById('generateTable').addEventListener('click', () => {
             displayCasinoId(currentData);
             generateTable(currentData);
             populateCurrencyDropdown(currentData);
+            populateSiteDropdown(currentData);  // Populate site dropdown
             document.getElementById('copyTable').disabled = false;
         } catch (e) {
             alert('Invalid JSON input');
@@ -29,6 +30,7 @@ document.getElementById('generateTable').addEventListener('click', () => {
                 displayCasinoId(currentData);
                 generateTable(currentData);
                 populateCurrencyDropdown(currentData);
+                populateSiteDropdown(currentData);  // Populate site dropdown
                 document.getElementById('copyTable').disabled = false;
             } catch (e) {
                 alert('Invalid JSON file');
@@ -45,17 +47,67 @@ function populateCurrencyDropdown(data) {
     const currencySelect = document.getElementById('currencySelect');
     currencySelect.innerHTML = ''; // Clear any previous options
 
-    // Extract available currencies from betLimits
     const sampleGame = Object.values(data.tables)[0];
     const currencies = Object.keys(sampleGame.betLimits);
 
-    // Populate the select dropdown with the available currencies
     currencies.forEach(currency => {
         const option = document.createElement('option');
         option.value = currency;
         option.textContent = currency;
         currencySelect.appendChild(option);
     });
+}
+
+// Function to populate the site dropdown
+function populateSiteDropdown(data) {
+    const siteSelect = document.getElementById('siteSelect');
+    siteSelect.innerHTML = ''; // Clear previous options
+
+    const allSites = new Set();
+    Object.values(data.tables).forEach(game => {
+        if (Array.isArray(game.sitesAssigned)) {
+            game.sitesAssigned.forEach(site => allSites.add(site));
+        }
+        if (Array.isArray(game.sitesBlocked)) {
+            game.sitesBlocked.forEach(site => allSites.add(site));
+        }
+    });
+
+    allSites.forEach(site => {
+        const option = document.createElement('option');
+        option.value = site;
+        option.textContent = `Site ${site}`;
+        siteSelect.appendChild(option);
+    });
+}
+
+// Event listener for applying site filter
+document.getElementById('applySite').addEventListener('click', () => {
+    if (currentData) {
+        const selectedSite = parseInt(document.getElementById('siteSelect').value);
+        filterTableBySite(currentData, selectedSite);
+    } else {
+        alert('No data to apply');
+    }
+});
+
+// Function to filter the table by selected site
+function filterTableBySite(data, site) {
+    const siteAsString = site.toString();
+
+    // Filter games where `sitesBlocked` does NOT contain `siteAsString`
+    const filteredTables = Object.entries(data.tables)
+        .filter(([gameId, game]) => {
+            const sitesBlocked = game.sitesBlocked || [];
+            return !sitesBlocked.includes(siteAsString); // Convert site to string to match sitesBlocked elements
+        })
+        .reduce((acc, [gameId, game]) => {
+            acc[gameId] = game;
+            return acc;
+        }, {});
+
+    // Regenerate the table with the filtered data
+    generateTable({ tables: filteredTables });
 }
 
 // Function to apply the selected currency to the table columns
@@ -79,7 +131,6 @@ function updateTableWithCurrency(data, currency) {
     const tableContainer = document.getElementById('tableContainer');
     const table = tableContainer.querySelector('table');
 
-    // Update the betLimits column for the selected currency
     if (table) {
         Object.values(data.tables).forEach((game, index) => {
             const row = table.rows[index + 1]; // Skip header row
@@ -106,6 +157,12 @@ function generateTable(data) {
     let headers = [];
 
     const sampleGame = Object.values(data.tables)[0];
+    if (!sampleGame) {
+        tableContainer.textContent = 'No data to display';
+        return; // Exit if there's no data to display
+    }
+
+    // Get headers excluding certain fields
     Object.keys(sampleGame).forEach(field => {
         if (!excludeFields.includes(field)) {
             headers.push(field);
@@ -129,15 +186,9 @@ function generateTable(data) {
     });
     thead.appendChild(headerRow);
 
-    // Generate rows with row numbers
-    Object.values(data.tables).forEach((game, index) => {
+    // Create data rows for all games
+    Object.values(data.tables).forEach(game => {
         const dataRow = document.createElement('tr');
-
-        // Create a cell for the row number
-        const rowNumberCell = document.createElement('td');
-        rowNumberCell.textContent = index + 1;  // Row number starts from 1
-        dataRow.appendChild(rowNumberCell);
-
         headers.forEach(header => {
             const td = document.createElement('td');
             const value = game[header];
@@ -152,7 +203,6 @@ function generateTable(data) {
     tableContainer.appendChild(table);
 }
 
-
 // Function to copy the table content to the clipboard
 function copyTableContent() {
     const tableContainer = document.getElementById('tableContainer');
@@ -163,20 +213,18 @@ function copyTableContent() {
         return;
     }
 
-    // Create a temporary textarea to hold the table content
     const textarea = document.createElement('textarea');
     let tableContent = '';
 
-    // Extract text content from the table
     Array.from(table.rows).forEach(row => {
         const cells = Array.from(row.cells).map(cell => cell.textContent);
-        tableContent += cells.join('\t') + '\n'; // Use tabs for separation
+        tableContent += cells.join('\t') + '\n';
     });
 
-    textarea.value = tableContent.trim(); // Trim to remove last newline
+    textarea.value = tableContent.trim();
     document.body.appendChild(textarea);
     textarea.select();
-    document.execCommand('copy'); // Copy to clipboard
+    document.execCommand('copy');
     document.body.removeChild(textarea);
 
     alert('Table content copied to clipboard!');
